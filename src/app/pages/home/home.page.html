@@ -1,13 +1,28 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>home</ion-title>
+    <ion-title>
+      <ion-icon name="home"></ion-icon>
+      Home
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">home</ion-title>
+      <ion-title size="large">
+        <ion-icon name="home"></ion-icon>
+        Home
+      </ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="ion-padding">
+    <ion-button expand="block" (click)="postSync()">Post Sync</ion-button>
+    <ion-list>
+      <ion-item *ngFor="let i of numbers">
+        <ion-label>Item {{ i }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
 </ion-content>

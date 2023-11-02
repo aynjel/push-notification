@@ -1,8 +1,7 @@
 import { Component, OnInit, ApplicationRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SwUpdate, SwPush } from '@angular/service-worker';
-import { interval } from 'rxjs';
-
+import { interval, timeout } from 'rxjs';
 declare global {
   interface ServiceWorkerRegistration {
     sync: {
@@ -18,10 +17,9 @@ declare global {
 })
 export class AppComponent implements OnInit {
   apiData: any;
-  private readonly publicKey = 'BFg3iN6s_6BoiQ3zPCCoSdwZawOceM_YMLGxtpTe3lX6uTY6k9mk2IAd4y_Ccx3aaaXMszM6uiXY-Rg0agdoWkM';
+  private readonly publicKey = 'BCol311jRW4M59BwcFAMiESdjaTHaNGQTJ-kC88feFnLEJ6nC-2JFOBcMX-rLRIO8NaaXYwDRCLn1a_s4XgR384';
 
   constructor(
-    private http: HttpClient,
     private update: SwUpdate,
     private appRef: ApplicationRef,
     private swPush: SwPush
@@ -48,28 +46,6 @@ export class AppComponent implements OnInit {
     });
   }
 
-  postSync(){
-    const object = {
-      title: 'foo',
-      body: 'bar',
-      userId: 1,
-    };
-
-    this.http.post('http://localhost:8050/data', object).subscribe({
-      next: (data) => console.log(data),
-      error: (err) => {
-        console.log(err);
-        this.backgroundSync();
-      }
-    });
-  }
-
-  backgroundSync(){
-    navigator.serviceWorker.ready.then((swRegistration) => {
-      swRegistration.sync.register('post-data');
-    }).catch((err) => console.log(err));
-  }
-
   pushSubscription() {
     if (!this.swPush.isEnabled) {
       console.log('Notification is not enabled');
@@ -89,31 +65,36 @@ export class AppComponent implements OnInit {
 
   updateClient() {
     if (!this.update.isEnabled) {
-      console.log('Not Enabled');
+      console.log('Update is not enabled');
       return;
     }
-    this.update.versionUpdates.subscribe({
-      next: (data) => console.log(data),
-      error: (err) => console.log(err),
-    });
 
     this.update.versionUpdates.subscribe({
-      next: (data) => console.log(data),
+      next: (event) => {
+        if (event.type === 'NO_NEW_VERSION_DETECTED') console.log('No new version detected');
+
+        if (event.type === 'VERSION_DETECTED') {
+          console.log('Version detected... Checking for updates');
+          if(confirm('New version available. Load New Version?')){
+            this.update.activateUpdate().then(() => {
+              console.log('App updated successfully');
+              location.reload();
+            }).catch((err) => console.log(err));
+          }
+        }
+      },
       error: (err) => console.log(err),
     });
-
   }
 
   checkUpdate() {
     this.appRef.isStable.subscribe({
-      next: (data) => {
-        if (data) {
-          const timeInterval = interval(8 * 60 * 60 * 1000);
-
+      next: (isStable) => {
+        if (isStable) {
+          const timeInterval = interval(8 * 60 * 60 * 1000); // 8 hours
           timeInterval.subscribe({
             next: () => {
-              this.update.checkForUpdate().then(() => console.log('Checked'));
-              this.update.activateUpdate().then(() => document.location.reload());
+              this.update.checkForUpdate().then(() => console.log('Checking for updates'));
             },
             error: (err) => console.log(err),
           });
@@ -122,4 +103,6 @@ export class AppComponent implements OnInit {
       error: (err) => console.log(err),
     });
   }
+
+
 }
