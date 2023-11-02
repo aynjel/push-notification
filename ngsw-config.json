@@ -12,6 +12,10 @@
           "/manifest.webmanifest",
           "/*.css",
           "/*.js"
+        ],
+        "urls": [
+          "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
+          "https://fonts.googleapis.com/icon?family=Material+Icons"
         ]
       }
     },
@@ -24,6 +28,32 @@
           "/assets/**",
           "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-freshness",
+      "urls": [
+        "/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "3d",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "api-performance",
+      "urls": [
+        "/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "3d",
+        "timeout": "10s"
       }
     }
   ]

@@ -1,4 +1,4 @@
-importScripts('./ngsw-worker.js');
+importScripts('../ngsw-worker.js');
 
 self.addEventListener('sync', function(event) {
   if (event.tag == 'post-data') {
