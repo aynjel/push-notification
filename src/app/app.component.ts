@@ -2,6 +2,8 @@ import { Component, OnInit, ApplicationRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SwUpdate, SwPush } from '@angular/service-worker';
 import { interval, timeout } from 'rxjs';
+import { ToastController } from '@ionic/angular';
+
 declare global {
   interface ServiceWorkerRegistration {
     sync: {
@@ -22,13 +24,26 @@ export class AppComponent implements OnInit {
   constructor(
     private update: SwUpdate,
     private appRef: ApplicationRef,
-    private swPush: SwPush
+    private swPush: SwPush,
+    private toastController: ToastController
   ) {
     this.updateClient();
     this.checkUpdate();
   }
 
   ngOnInit() {
+    if(!navigator.onLine){
+      localStorage.setItem('offline', 'true');
+      this.toastController.create({
+        message: 'You are offline',
+        duration: 4000
+      }).then((toast) => {
+        toast.present();
+      });
+    } else {
+      localStorage.removeItem('offline');
+    }
+
     this.pushSubscription();
 
     this.swPush.messages.subscribe({
