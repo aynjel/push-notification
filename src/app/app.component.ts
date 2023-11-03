@@ -18,7 +18,7 @@ declare global {
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  apiData: any;
+  // sample public key
   private readonly publicKey = 'BCol311jRW4M59BwcFAMiESdjaTHaNGQTJ-kC88feFnLEJ6nC-2JFOBcMX-rLRIO8NaaXYwDRCLn1a_s4XgR384';
 
   constructor(
@@ -44,13 +44,29 @@ export class AppComponent implements OnInit {
       localStorage.removeItem('offline');
     }
 
-    this.pushSubscription();
+    // fetch push notification from api
+    const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: '123456789123',
+        app: 'doki',
+      }),
+    });
+    res.then((res) => res.json()).then((res) => {
+      console.log(res);
+      // this.subscribeToNotification(res.publicKey);
+    }).catch((err) => console.log(err));
 
+    // Listen to push notification
     this.swPush.messages.subscribe({
       next: (data) => console.log(data),
       error: (err) => console.log(err),
     });
 
+    // Listen to notification click
     this.swPush.notificationClicks.subscribe({
       next: ({ action, notification }) => {
         console.log(action);
@@ -61,18 +77,20 @@ export class AppComponent implements OnInit {
     });
   }
 
-  pushSubscription() {
+  subscribeToNotification(publicKey: string) {
+    // Check if push notification is enabled
     if (!this.swPush.isEnabled) {
       console.log('Notification is not enabled');
       return;
     }
 
+    // Request subscription
     this.swPush
       .requestSubscription({
-        serverPublicKey: this.publicKey,
+        serverPublicKey: publicKey
       })
       .then((sub) => {
-        // Make a post call to serve
+        // Send subscription to server
         console.log(JSON.stringify(sub));
       })
       .catch((err) => console.log(err));
