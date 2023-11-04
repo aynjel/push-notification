@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { SwUpdate, SwPush } from '@angular/service-worker';
 import { interval, timeout } from 'rxjs';
 import { ToastController } from '@ionic/angular';
+import { NotificationService } from './services/notification/notification.service';
 
 declare global {
   interface ServiceWorkerRegistration {
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit {
     private update: SwUpdate,
     private appRef: ApplicationRef,
     private swPush: SwPush,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private notificationService: NotificationService
   ) {
     this.updateClient();
     this.checkUpdate();
@@ -44,23 +46,32 @@ export class AppComponent implements OnInit {
       localStorage.removeItem('offline');
     }
 
-    // fetch push notification from api
-    const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: '123456789123',
-        app: 'doki',
-      }),
-    });
-    res.then((res) => res.json()).then((res) => {
-      console.log(res);
-      // this.subscribeToNotification(res.publicKey);
-    }).catch((err) => console.log(err));
+    if (!this.swPush.isEnabled) {
+      console.log('Notification is not enabled');
+      return;
+    }
+
+    // subscribe to push notification
+    this.notificationService.subscribeToNotification(this.publicKey);
+
+    // // fetch push notification from api
+    // const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     userId: '123456789123',
+    //     app: 'doki',
+    //   }),
+    // });
+    // res.then((res) => res.json()).then((res) => {
+    //   console.log(res);
+      
+    // }).catch((err) => console.log(err));
 
     // Listen to push notification
+    
     this.swPush.messages.subscribe({
       next: (data) => console.log(data),
       error: (err) => console.log(err),
@@ -75,25 +86,6 @@ export class AppComponent implements OnInit {
       },
       error: (err) => console.log(err),
     });
-  }
-
-  subscribeToNotification(publicKey: string) {
-    // Check if push notification is enabled
-    if (!this.swPush.isEnabled) {
-      console.log('Notification is not enabled');
-      return;
-    }
-
-    // Request subscription
-    this.swPush
-      .requestSubscription({
-        serverPublicKey: publicKey
-      })
-      .then((sub) => {
-        // Send subscription to server
-        console.log(JSON.stringify(sub));
-      })
-      .catch((err) => console.log(err));
   }
 
   updateClient() {
