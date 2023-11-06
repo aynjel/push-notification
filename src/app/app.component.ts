@@ -19,8 +19,6 @@ declare global {
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  // sample public key
-  private readonly publicKey = 'BCol311jRW4M59BwcFAMiESdjaTHaNGQTJ-kC88feFnLEJ6nC-2JFOBcMX-rLRIO8NaaXYwDRCLn1a_s4XgR384';
 
   constructor(
     private update: SwUpdate,
@@ -34,6 +32,32 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // check if browser supports notification
+    if('Notification' in window){
+      console.log('Notification supported');
+      // enable push api from service worker
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        reg?.pushManager.getSubscription().then((sub) => {
+          if(sub === null){
+            console.log('Not subscribed to push notification');
+          } else {
+            console.log('Subscribed to push notification');
+          }
+        });
+      });
+
+      // request permission for push notification
+      Notification.requestPermission().then((status) => {
+        console.log(status);
+      });
+    }
+
+    // check service worker
+    if ('serviceWorker' in navigator) {
+      console.log('Service worker supported');
+    }
+
+    // check if user is offline
     if(!navigator.onLine){
       localStorage.setItem('offline', 'true');
       this.toastController.create({
@@ -46,13 +70,12 @@ export class AppComponent implements OnInit {
       localStorage.removeItem('offline');
     }
 
-    if (!this.swPush.isEnabled) {
-      console.log('Notification is not enabled');
-      return;
+    // check if push notification is enabled
+    if (this.swPush.isEnabled) {
+      // subscribe to push notification
+      this.notificationService.subscribeToNotification();
     }
 
-    // subscribe to push notification
-    this.notificationService.subscribeToNotification(this.publicKey);
 
     // // fetch push notification from api
     // const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {

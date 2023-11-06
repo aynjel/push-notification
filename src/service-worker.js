@@ -1,5 +1,30 @@
 importScripts('./ngsw-worker.js');
 
+self.addEventListener('install', function(event) {
+    console.log('Service worker installing...');
+    // Add a call to skipWaiting here
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', function(event) {
+    console.log('Service worker activating...');
+});
+
+self.addEventListener('fetch', function(event) {
+    console.log('Fetching:', event.request.url);
+});
+
+self.addEventListener('push', function(event) {
+    console.log('Push message received', event);
+    var title = 'Push message';
+    event.waitUntil(
+        self.registration.showNotification(title, {
+            body: 'The Message',
+            icon: 'images/icon.png',
+            tag: 'my-tag'
+        }));
+});
+
 self.addEventListener('sync', function(event) {
     if (event.tag === 'post-data') {
         // call method

@@ -37,6 +37,13 @@ export class HomePage implements OnInit {
     });
   }
 
+  sendPush(){
+    this.http.post('http://localhost:8050/push', {}).subscribe({
+      next: (data) => console.log(data),
+      error: (err) => console.log(err)
+    });
+  }
+
   backgroundSync(){
     navigator.serviceWorker.ready.then((swRegistration) => {
       swRegistration.sync.register('post-data');
