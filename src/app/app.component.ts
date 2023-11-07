@@ -32,6 +32,22 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: '123456789123',
+        app: 'doki',
+      }),
+    });
+    res.then((res) => res.json()).then((res) => {
+      console.log(res);
+      // this.subscribeToNotification(res.publicKey);
+    }).catch((err) => console.log(err));
+    
     // check if browser supports notification
     if('Notification' in window){
       console.log('Notification supported');
