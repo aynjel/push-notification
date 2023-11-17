@@ -5,6 +5,7 @@ import { interval, timeout } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 import { NotificationService } from './services/notification/notification.service';
 import { io } from 'socket.io-client';
+import { environment } from 'src/environments/environment';
 
 declare global {
   interface ServiceWorkerRegistration {
@@ -73,7 +74,7 @@ export class AppComponent implements OnInit {
         console.log(status);
         if(status === 'granted'){
           console.log('Notification permission granted');
-          this.http.get('http://localhost:8050/getSubscribe').subscribe({
+          this.http.get(`${environment.pushNotificationApi}/getSubscribe`).subscribe({
             next: (res: any) => {
               console.log('getSubscribe', res);
               // Request subscription
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit {
                 serverPublicKey: res.publicKey,
               }).then((sub) => {
                 console.log('requestSubscription', sub);
-                this.http.post('http://localhost:8050/postSubscribe', {
+                this.http.post(`${environment.pushNotificationApi}/postSubscribe`, {
                   // add app and userId to subscription
                   subscription: sub,
                   userId: '123456789123',
