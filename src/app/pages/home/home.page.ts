@@ -27,10 +27,10 @@ export class HomePage implements OnInit {
 
   async SubscribeToNotification() {
     await this.http.get(`${environment.pushNotificationApi}/getSubscribe`).subscribe({
-      next: (res: any) => {
+      next: async (res: any) => {
         console.log('getSubscribe', res);
         // Request subscription
-        this.swPush.requestSubscription({
+        await this.swPush.requestSubscription({
           serverPublicKey: res.publicKey,
         }).then(async (sub) => {
           console.log('requestSubscription', sub);
@@ -40,10 +40,10 @@ export class HomePage implements OnInit {
             userId: '123456789123',
             app: 'doki'
           }).subscribe({
-            next: (res: any) => {
+            next: async (res: any) => {
               console.log('postSubscribe', res);
               // enable push api from service worker
-              navigator.serviceWorker.getRegistration().then((reg) => {
+              await navigator.serviceWorker.getRegistration().then((reg) => {
                 reg?.pushManager.getSubscription().then((sub) => {
                   console.log('pushManager.getSubscription', sub);
                   if(sub === null){
