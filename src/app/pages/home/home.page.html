@@ -18,8 +18,8 @@
   </ion-header>
 
   <div class="ion-padding">
-    <ion-button expand="block" (click)="postSync()">Post Sync</ion-button>
-    <ion-button expand="block" (click)="sendPush()">Send Push</ion-button>
+    <ion-button expand="block" (click)="SubscribeToNotification()">Subscribe Push Notification</ion-button>
+    <ion-button expand="block" (click)="unSubscribeToNotification()">Unsubscribe Push Notification</ion-button>
     <ion-list>
       <ion-item *ngFor="let i of numbers">
         <ion-label>Item {{ i }}</ion-label>

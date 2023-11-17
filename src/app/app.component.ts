@@ -74,40 +74,6 @@ export class AppComponent implements OnInit {
         console.log(status);
         if(status === 'granted'){
           console.log('Notification permission granted');
-          this.http.get(`${environment.pushNotificationApi}/getSubscribe`).subscribe({
-            next: (res: any) => {
-              console.log('getSubscribe', res);
-              // Request subscription
-              this.swPush.requestSubscription({
-                serverPublicKey: res.publicKey,
-              }).then((sub) => {
-                console.log('requestSubscription', sub);
-                this.http.post(`${environment.pushNotificationApi}/postSubscribe`, {
-                  // add app and userId to subscription
-                  subscription: sub,
-                  userId: '123456789123',
-                  app: 'doki'
-                }).subscribe({
-                  next: (res: any) => {
-                    console.log('postSubscribe', res);
-                    // enable push api from service worker
-                    navigator.serviceWorker.getRegistration().then((reg) => {
-                      reg?.pushManager.getSubscription().then((sub) => {
-                        console.log('pushManager.getSubscription', sub);
-                        if(sub === null){
-                          console.log('Not subscribed to push notification');
-                        } else {
-                          console.log('Subscribed to push notification');
-                        }
-                      });
-                    });
-                  },
-                  error: (err) => console.log(err),
-                });
-              }).catch((err) => console.log(err));
-            },
-            error: (err) => console.log(err),
-          });
         } else {
           console.log('Notification permission denied');
         }
@@ -169,6 +135,8 @@ export class AppComponent implements OnInit {
       error: (err) => console.log(err),
     });
   }
+
+  
 
   updateClient() {
     if (!this.update.isEnabled) {
