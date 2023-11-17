@@ -17,7 +17,7 @@ import { HttpClientModule } from '@angular/common/http';
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    ServiceWorkerModule.register('service-worker.js', {
+    ServiceWorkerModule.register('./service-worker.js', {
       enabled: environment.production,
     })
   ],

@@ -24,4 +24,10 @@ export class NotificationService {
     })
     .catch(err => console.error(err));
   }
+
+  showNotification(title: string, body: string) {
+    navigator.serviceWorker.ready.then((serviceWorker) => {
+      serviceWorker.showNotification(title, { body });
+    });
+  }
 }
