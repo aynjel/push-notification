@@ -66,6 +66,17 @@ export class HomePage implements OnInit {
     await this.swPush.unsubscribe();
   }
 
+  async allowNotification() {
+    await Notification.requestPermission().then((status) => {
+      console.log(status);
+      if(status === 'granted'){
+        console.log('Notification permission granted');
+      } else {
+        console.log('Notification permission denied');
+      }
+    });
+  }
+
   postSync(){
     const object = {
       name: 'Tests'

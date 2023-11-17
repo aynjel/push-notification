@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   pushNotificationApi: 'https://push-notification-server-omega.vercel.app',
+  // pushNotificationApi: 'http://localhost:8050',
 };
 
 /*

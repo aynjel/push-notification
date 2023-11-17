@@ -68,18 +68,6 @@ export class AppComponent implements OnInit {
     // check if browser supports notification
     if('Notification' in window){
       console.log('Notification supported');
-
-      // request permission for push notification
-      Notification.requestPermission().then((status) => {
-        console.log(status);
-        if(status === 'granted'){
-          console.log('Notification permission granted');
-        } else {
-          console.log('Notification permission denied');
-        }
-      });
-
-
     }
 
     // check if user is offline
