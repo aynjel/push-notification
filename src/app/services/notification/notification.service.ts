@@ -61,7 +61,7 @@ export class NotificationService {
       app: 'doki',
       userId: '123456789123',
     };
-    return this.http.post(`${environment.pushNotificationApi}`, fullPayload);
+    return this.http.post(environment.pushNotificationApi, fullPayload);
   }
 
   async unSubscribeToNotification(): Promise<any> {
