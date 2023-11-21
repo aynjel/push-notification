@@ -30,13 +30,11 @@ export class HomePage implements OnInit {
       next: (res: any) => {
         console.log('Get Public Key from Server', res);
         // Request subscription
-        this.swPush.requestSubscription({
-          serverPublicKey: res.publicKey,
-        }).then((sub) => {
-          console.log('Success Subscription', sub);
+        this.notification.requestSubscription(res.data.publicKey).then((sub) => {
+          console.log('Request Subscription using Public Key', sub);
           // Send subscription to server
           this.notification.subscribeToNotification(sub).subscribe({
-            next: (res) => console.log(res),
+            next: (data) => console.log(data),
             error: (err) => console.log(err),
           });
         }).catch((err) => console.log(err));
@@ -47,17 +45,7 @@ export class HomePage implements OnInit {
 
   async unSubscribeToNotification() {
     if (Notification.permission === 'granted') {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        reg?.pushManager.getSubscription().then((sub) => {
-          if (sub) {
-            sub.unsubscribe().then((success) => {
-              console.log('Unsubscribe Success', success);
-            }).catch((err) => console.log(err));
-          }
-        });
-      });
-    }else{
-      console.log('Notification permission not granted');
+      this.notification.unSubscribeToNotification();
     }
   }
 
@@ -66,9 +54,7 @@ export class HomePage implements OnInit {
   }
 
   async checkSubscription() {
-    this.swPush.subscription.subscribe((sub) => {
-      console.log('Subscription', sub);
-    });
+    this.notification.checkSubscription();
   }
 
   // postSync(){
