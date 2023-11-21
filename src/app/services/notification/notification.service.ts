@@ -66,14 +66,12 @@ export class NotificationService {
 
   async unSubscribeToNotification(): Promise<any> {
     return await navigator.serviceWorker.getRegistration().then((reg) => {
-      console.log('Get Service Worker Registration', reg);
       reg?.pushManager.getSubscription().then((sub) => {
         if(sub === null || sub === undefined){
           console.log('Not Subscribed');
         } else {
-          console.log('Success Subscription', sub);
           sub.unsubscribe();
-          console.log('Unsubscribe');
+          console.log('Unsubscribed', sub);
         }
       });
     });
