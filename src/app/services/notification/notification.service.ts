@@ -1,33 +1,35 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SwPush } from '@angular/service-worker';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private apiUrl = 'http://localhost:8050';
-  private readonly publicKey = 'BCol311jRW4M59BwcFAMiESdjaTHaNGQTJ-kC88feFnLEJ6nC-2JFOBcMX-rLRIO8NaaXYwDRCLn1a_s4XgR384';
 
   constructor(
     private http: HttpClient,
     private swPush: SwPush
   ) { }
 
-  // subscribe to push notification
-  subscribeToNotification() {
-    this.swPush.requestSubscription({
-      serverPublicKey: this.publicKey
-    })
-    .then(sub => {
-      this.http.post(`${this.apiUrl}/subscribe`, sub).subscribe();
-    })
-    .catch(err => console.error(err));
+  async allowNotification(): Promise<any> {
+    return await Notification.requestPermission().then((status) => {
+      console.log(status);
+      if(status === 'granted'){
+        console.log('Notification permission granted');
+      } else {
+        console.log('Notification permission denied');
+      }
+    });
   }
 
-  showNotification(title: string, body: string) {
-    navigator.serviceWorker.ready.then((serviceWorker) => {
-      serviceWorker.showNotification(title, { body });
-    });
+  getPublicKey(): Observable<any> {
+    return this.http.get(environment.pushNotificationApi);
+  }
+
+  subscribeToNotification(payload:any): Observable<any> {
+    return this.http.post(`${environment.pushNotificationApi}`, payload);
   }
 }
