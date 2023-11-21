@@ -56,7 +56,12 @@ export class NotificationService {
   }
 
   subscribeToNotification(payload:any): Observable<any> {
-    return this.http.post(`${environment.pushNotificationApi}`, payload);
+    const fullPayload = {
+      subscription: payload,
+      app: 'doki',
+      userId: '123456789123',
+    };
+    return this.http.post(`${environment.pushNotificationApi}`, fullPayload);
   }
 
   async unSubscribeToNotification(): Promise<any> {

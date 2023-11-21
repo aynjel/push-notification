@@ -14,8 +14,7 @@ export class HomePage implements OnInit {
   numbers: number[] = [];
 
   constructor(
-    private notification: NotificationService,
-    private swPush: SwPush
+    private notification: NotificationService
   ) {
     for (let i = 0; i < 10; i++) {
       this.numbers.push(i);
