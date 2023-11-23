@@ -22,5 +22,20 @@
     <ion-button expand="block" (click)="checkSubscription()">Check Subscription</ion-button>
     <ion-button expand="block" (click)="subscribeToNotification()">Subscribe Push Notification</ion-button>
     <ion-button expand="block" (click)="unSubscribeToNotification()">Unsubscribe Push Notification</ion-button>
+    <ion-button expand="block" (click)="clearData()">Clear Data</ion-button>
+
+    <pre>
+      <code class="language-css" *ngIf="sub">
+        {{ sub | json }}
+      </code>
+    </pre>
+
+    <ion-list *ngIf="sub">
+      <!-- <ion-item>
+        <ion-label>Endpoint</ion-label>
+        <p type="text" readonly="true">{{endpoint}}</p>
+        <ion-button expand="block" (click)="copyEndpoint()">Copy</ion-button>
+      </ion-item> -->
+    </ion-list>
   </div>
 </ion-content>

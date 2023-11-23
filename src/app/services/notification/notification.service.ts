@@ -43,6 +43,7 @@ export class NotificationService {
 
   getPublicKey(): Observable<any> {
     return this.http.get(environment.pushNotificationApi);
+    // return this.http.get(`${environment.pushNotificationApi}/getSubscribe`);
   }
 
   requestSubscription(publicKey: any): Promise<any> {
@@ -55,13 +56,14 @@ export class NotificationService {
     });
   }
 
-  subscribeToNotification(payload:any): Observable<any> {
+  subscribeToNotification(subsPayload:any): Observable<any> {
     const fullPayload = {
-      subscription: payload,
+      subscription: subsPayload,
       app: 'doki',
       userId: '123456789123',
     };
     return this.http.post(environment.pushNotificationApi, fullPayload);
+    // return this.http.post(`${environment.pushNotificationApi}/postSubscribe`, fullPayload);
   }
 
   async unSubscribeToNotification(): Promise<any> {
