@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { SwPush } from '@angular/service-worker';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { PublicKey, SubscriptionPayload } from 'src/models/notificationModel';
 
 @Injectable({
   providedIn: 'root'
@@ -41,12 +42,11 @@ export class NotificationService {
     });
   }
 
-  getPublicKey(): Observable<any> {
-    return this.http.get(environment.pushNotificationApi);
-    // return this.http.get(`${environment.pushNotificationApi}/getSubscribe`);
+  getPublicKey(): Observable<PublicKey> {
+    return this.http.get<PublicKey>(`${environment.DEV_CHH_PN}/subscribe`);
   }
 
-  requestSubscription(publicKey: any): Promise<any> {
+  requestSubscription(publicKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.swPush.requestSubscription({
         serverPublicKey: publicKey,
@@ -56,26 +56,17 @@ export class NotificationService {
     });
   }
 
-  subscribeToNotification(subsPayload:any): Observable<any> {
+  subscribeNotification(subsPayload:any): Observable<SubscriptionPayload> {
     const fullPayload = {
       subscription: subsPayload,
       app: 'doki',
       userId: '123456789123',
     };
-    return this.http.post(environment.pushNotificationApi, fullPayload);
-    // return this.http.post(`${environment.pushNotificationApi}/postSubscribe`, fullPayload);
+    return this.http.post<SubscriptionPayload>(`${environment.DEV_CHH_PN}/subscribe`, fullPayload);
   }
 
-  async unSubscribeToNotification(): Promise<any> {
-    return await navigator.serviceWorker.getRegistration().then((reg) => {
-      reg?.pushManager.getSubscription().then((sub) => {
-        if(sub === null || sub === undefined){
-          console.log('Not Subscribed');
-        } else {
-          sub.unsubscribe();
-          console.log('Unsubscribed', sub);
-        }
-      });
-    });
+  unSubscribeNotification(): Observable<any> {
+    this.swPush.unsubscribe();
+    return this.http.delete(environment.DEV_CHH_PN);
   }
 }

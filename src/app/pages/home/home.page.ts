@@ -4,7 +4,6 @@ import { SwPush } from '@angular/service-worker';
 import { ToastController } from '@ionic/angular';
 import { IndexDbService } from 'src/app/services/indexDb/index-db.service';
 import { NotificationService } from 'src/app/services/notification/notification.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -16,13 +15,8 @@ export class HomePage implements OnInit {
 
   sub: any;
 
-  endpoint: any;
-  expirationTime: any;
-  auth: any;
-  p256dh: any;
-
   constructor(
-    private notification: NotificationService,
+    private notificationService: NotificationService,
     private toastCtrl: ToastController
   ) {
     for (let i = 0; i < 10; i++) {
@@ -33,14 +27,45 @@ export class HomePage implements OnInit {
   ngOnInit() {
   }
 
-  async presentToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-    });
-    toast.present();
+  async requestPermission() {
+    await this.notificationService.allowNotification();
   }
 
+  checkSubscription() {
+    this.notificationService.checkSubscription().then((res) => {
+      console.log(res);
+    });
+  }
+
+  subscribeNotification() {
+    this.notificationService.getPublicKey().subscribe({
+      next: async (res) => {
+        const publicKey = res.data.publicKey;
+        const subscription = await this.notificationService.requestSubscription(publicKey);
+        // console.log("Public key: ", publicKey);
+        // console.log("Subscription: ", subscription);
+        this.notificationService.subscribeNotification(subscription).subscribe({
+          next: (data) => {
+            this.presentToast('Subscribed');
+            console.log(data);
+          },
+          error: (err) => console.error(err)
+        });
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  unsubscribeNotification() {
+    this.notificationService.unSubscribeNotification().subscribe({
+      next: (data) => {
+        this.presentToast('Unsubscribed');
+        console.log(data);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+  
   // hard reload browser and clear cache
   clearData() {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -58,41 +83,13 @@ export class HomePage implements OnInit {
     window.location.reload();
   }
 
-  async subscribeToNotification() {
-    this.notification.getPublicKey().subscribe({
-      next: (res: any) => {
-        console.log('Get Public Key from Server', res);
-        // Request subscription
-        this.notification.requestSubscription(res.data.publicKey).then((sub) => {
-          console.log('Request Subscription using Public Key', sub);
-          this.sub = sub;
-          this.endpoint = sub.endpoint;
-          // this.expirationTime = sub.expirationTime;
-          // this.auth = sub.keys.auth;
-          // this.p256dh = sub.keys.p256dh
-          // Send subscription to server
-          this.notification.subscribeToNotification(sub).subscribe({
-            next: (data) => console.log(data),
-            error: (err) => console.log(err),
-          });
-        }).catch((err) => console.log(err));
-      },
-      error: (err) => console.log(err),
+  async presentToast(message: string, status: string = 'success') {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color: status
     });
-  }
-
-  async unSubscribeToNotification() {
-    if (Notification.permission === 'granted') {
-      this.notification.unSubscribeToNotification();
-    }
-  }
-
-  async allowNotification() {
-    this.notification.allowNotification();
-  }
-
-  async checkSubscription() {
-    this.notification.checkSubscription();
+    toast.present();
   }
 
   // postSync(){
