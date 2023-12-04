@@ -60,7 +60,7 @@ export class NotificationService {
     const fullPayload = {
       subscription: subsPayload,
       app: 'doki',
-      userId: '123456789123',
+      userId: 'TS012345',
     };
     return this.http.post<SubscriptionPayload>(`${environment.DEV_CHH_PN}/subscribe`, fullPayload);
   }

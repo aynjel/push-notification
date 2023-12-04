@@ -28,11 +28,19 @@ export class HomePage implements OnInit {
   }
 
   async requestPermission() {
-    await this.notificationService.allowNotification();
+    await this.notificationService.allowNotification().then((res) => {
+      if (res) {
+        this.presentToast('Permission Granted');
+      }
+      console.log(res);
+    });
   }
 
   checkSubscription() {
     this.notificationService.checkSubscription().then((res) => {
+      if (res) {
+        this.presentToast('Subscribed');
+      }
       console.log(res);
     });
   }
@@ -42,12 +50,13 @@ export class HomePage implements OnInit {
       next: async (res) => {
         const publicKey = res.data.publicKey;
         const subscription = await this.notificationService.requestSubscription(publicKey);
-        // console.log("Public key: ", publicKey);
-        // console.log("Subscription: ", subscription);
+        console.log("Public key: ", publicKey);
+        console.log("Subscription: ", subscription);
         this.notificationService.subscribeNotification(subscription).subscribe({
           next: (data) => {
             this.presentToast('Subscribed');
-            console.log(data);
+            this.sub = data;
+            console.log("Subscription Payload: ", data);
           },
           error: (err) => console.error(err)
         });
