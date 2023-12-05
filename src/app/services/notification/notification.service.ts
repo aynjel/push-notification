@@ -60,13 +60,13 @@ export class NotificationService {
     const fullPayload = {
       subscription: subsPayload,
       app: 'doki',
-      userId: 'TS012345',
+      userId: '789456123125',
     };
     return this.http.post<SubscriptionPayload>(`${environment.DEV_CHH_PN}/subscribe`, fullPayload);
   }
 
   unSubscribeNotification(): Observable<any> {
     this.swPush.unsubscribe();
-    return this.http.delete(environment.DEV_CHH_PN);
+    return this.http.delete(`${environment.DEV_CHH_PN}/subscribe`);
   }
 }
