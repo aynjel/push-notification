@@ -37,34 +37,7 @@ export class AppComponent implements OnInit {
     // this.socket = io('https://chh-push-notification-production.up.railway.app/api/v1/subscribe');
   }
 
-  ngOnInit() {
-    // this.socket.on('notification', (data: any) => {
-    //   console.log(data);
-      // this.notificationService.showNotification(data.title, data.body, data.url);
-    // });
-
-    // const res = fetch('https://chh-push-notification-production.up.railway.app/api/v1/subscribe', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     userId: '123456789123',
-    //     app: 'doki',
-    //   }),
-    // });
-    // res.then((res) => res.json()).then((res) => {
-    //   console.log(res);
-    //   const ws = new WebSocket(res.data.url);
-
-    //   ws.onmessage = (e) => {
-    //     const serverMessage = e.data;
-    //     console.log(serverMessage);
-    //     this.notificationService.showNotification(serverMessage.title, serverMessage.body);
-    //   };
-    //   // this.subscribeToNotification(res.publicKey);
-    // }).catch((err) => console.log(err));
-    
+  ngOnInit() {    
     // check if browser supports notification
     if('Notification' in window){
       console.log('Notification supported');
