@@ -1,11 +1,7 @@
 import { Component, OnInit, ApplicationRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { SwUpdate, SwPush } from '@angular/service-worker';
-import { interval, timeout } from 'rxjs';
+import { interval } from 'rxjs';
 import { ToastController } from '@ionic/angular';
-import { NotificationService } from './services/notification/notification.service';
-import { io } from 'socket.io-client';
-import { environment } from 'src/environments/environment';
 
 declare global {
   interface ServiceWorkerRegistration {
@@ -29,12 +25,9 @@ export class AppComponent implements OnInit {
     private appRef: ApplicationRef,
     private swPush: SwPush,
     private toastController: ToastController,
-    private notificationService: NotificationService,
-    private http: HttpClient,
   ) {
     this.updateClient();
     this.checkUpdate();
-    // this.socket = io('https://chh-push-notification-production.up.railway.app/api/v1/subscribe');
   }
 
   ngOnInit() {    

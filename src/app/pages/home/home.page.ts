@@ -14,10 +14,12 @@ export class HomePage implements OnInit {
   numbers: number[] = [];
 
   sub: any;
+  isSubscribed: boolean = false;
 
   constructor(
     private notificationService: NotificationService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private swPush: SwPush,
   ) {
     for (let i = 0; i < 10; i++) {
       this.numbers.push(i);
@@ -38,9 +40,7 @@ export class HomePage implements OnInit {
 
   checkSubscription() {
     this.notificationService.checkSubscription().then((res) => {
-      if (res) {
-        this.presentToast('Subscribed');
-      }
+      this.isSubscribed = res;
       console.log(res);
     });
   }
@@ -55,6 +55,7 @@ export class HomePage implements OnInit {
         this.notificationService.subscribeNotification(subscription).subscribe({
           next: (data) => {
             this.presentToast('Subscribed');
+            this.isSubscribed = true;
             this.sub = data;
             console.log("Subscription Payload: ", data);
           },
@@ -66,12 +67,18 @@ export class HomePage implements OnInit {
   }
 
   unsubscribeNotification() {
-    this.notificationService.unSubscribeNotification().subscribe({
-      next: (data) => {
-        this.presentToast('Unsubscribed');
-        console.log(data);
-      },
-      error: (err) => console.error(err)
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      reg?.pushManager.getSubscription().then((sub) => {
+        console.log('getSubscription: ', sub);
+        const subEndpoint = sub?.endpoint || '';
+        this.notificationService.unSubscribeToNotifications(subEndpoint).subscribe({
+          next: (data) => {
+            console.log(data);
+            this.isSubscribed = false;
+          },
+          error: (err) => console.error(err)
+        });
+      });
     });
   }
   

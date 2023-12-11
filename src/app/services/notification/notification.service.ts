@@ -34,7 +34,7 @@ export class NotificationService {
             console.log('Not Subscribed');
             resolve(false);
           } else {
-            console.log('Success Subscription', sub);
+            console.log('Subscribed', sub);
             resolve(true);
           }
         });
@@ -65,8 +65,8 @@ export class NotificationService {
     return this.http.post<SubscriptionPayload>(`${environment.DEV_CHH_PN}/subscribe`, fullPayload);
   }
 
-  unSubscribeNotification(): Observable<any> {
-    this.swPush.unsubscribe();
-    return this.http.delete(`${environment.DEV_CHH_PN}/subscribe`);
+  unSubscribeToNotifications(subEndpoint: string): Observable<any> {
+    const url = environment.DEV_CHH_PN;
+    return this.http.delete<any>(`${url}/subscribe`, { body: { endpoint: subEndpoint } });
   }
 }
