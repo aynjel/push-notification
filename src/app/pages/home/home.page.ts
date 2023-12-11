@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { IndexDbService } from 'src/app/services/indexDb/index-db.service';
 import { NotificationService } from 'src/app/services/notification/notification.service';
 
@@ -18,45 +18,51 @@ export class HomePage implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
-    private toastCtrl: ToastController,
-    private swPush: SwPush,
-  ) {
-    for (let i = 0; i < 10; i++) {
-      this.numbers.push(i);
+    private toastController: ToastController,
+    private alertController: AlertController,
+    private swPush: SwPush
+  ) { }
+
+  ngOnInit() {
+
+    if (!localStorage.getItem('pushSubscription')) {
+      this.alertController.create({
+        header: "Allow Notification",
+        message: "Do you want to allow notification?",
+        buttons: [
+          {
+            text: "No",
+            role: "cancel",
+            handler: () => {
+              console.log("Notification permission denied");
+            },
+          },
+          {
+            text: "Yes",
+            handler: () => {
+              this.subscribeToNotifications();
+            },
+          },
+        ],
+      }).then((alert) => {
+        alert.present();
+      });
     }
   }
 
-  ngOnInit() {
-  }
-
-  async requestPermission() {
-    await this.notificationService.allowNotification().then((res) => {
-      if (res) {
-        this.presentToast('Permission Granted');
-      }
-      console.log(res);
-    });
-  }
-
-  checkSubscription() {
-    this.notificationService.checkSubscription().then((res) => {
-      this.isSubscribed = res;
-      console.log(res);
-    });
-  }
-
-  subscribeNotification() {
+  subscribeToNotifications(): void {
     this.notificationService.getPublicKey().subscribe({
       next: async (res) => {
         const publicKey = res.data.publicKey;
-        const subscription = await this.notificationService.requestSubscription(publicKey);
-        console.log("Public key: ", publicKey);
-        console.log("Subscription: ", subscription);
-        this.notificationService.subscribeNotification(subscription).subscribe({
+        const sub = await this.swPush.requestSubscription({
+          serverPublicKey: publicKey
+        });
+        // send subscription to server
+        this.notificationService.subscribeNotification(sub).subscribe({
           next: (data) => {
-            this.presentToast('Subscribed');
             this.isSubscribed = true;
-            this.sub = data;
+            this.sub = sub;
+            localStorage.setItem('pushSubscription', JSON.stringify(sub));
             console.log("Subscription Payload: ", data);
           },
           error: (err) => console.error(err)
@@ -67,17 +73,16 @@ export class HomePage implements OnInit {
   }
 
   unsubscribeNotification() {
-    navigator.serviceWorker.getRegistration().then((reg) => {
-      reg?.pushManager.getSubscription().then((sub) => {
-        console.log('getSubscription: ', sub);
-        const subEndpoint = sub?.endpoint || '';
-        this.notificationService.unSubscribeToNotifications(subEndpoint).subscribe({
-          next: (data) => {
-            console.log(data);
-            this.isSubscribed = false;
-          },
-          error: (err) => console.error(err)
-        });
+    this.swPush.unsubscribe().then(() => {
+      this.notificationService.unSubscribeToNotifications(this.sub.endpoint).subscribe({
+        next: (data) => {
+          this.presentToast('Unsubscribed');
+          this.isSubscribed = false;
+          this.sub = null;
+          localStorage.removeItem('pushSubscription');
+          console.log("Unsubscription Payload: ", data);
+        },
+        error: (err) => console.error(err)
       });
     });
   }
@@ -100,7 +105,7 @@ export class HomePage implements OnInit {
   }
 
   async presentToast(message: string, status: string = 'success') {
-    const toast = await this.toastCtrl.create({
+    const toast = await this.toastController.create({
       message,
       duration: 2000,
       color: status
